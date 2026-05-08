@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Regia Sol — A Reckoning of Empires</title>
+<meta name="description" content="A multiplayer tactical battler of empires. Lead the English, Normans, Romans, Persians, Celts, or Mongols across the field of war." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ============== HOME ============== -->
+  <section id="screen-home" class="screen active">
+    <div class="sky"></div>
+    <div class="sun" id="home-sun"></div>
+    <div class="silhouette-band band-far"></div>
+    <div class="silhouette-band band-mid"></div>
+    <div class="silhouette-band band-near"></div>
+
+    <div class="home-content">
+      <div class="brand">
+        <div class="brand-mark">REGIA · SOL</div>
+        <h1 class="brand-title">REGIA SOL</h1>
+        <div class="brand-sub">A Reckoning of Empires</div>
+      </div>
+
+      <div class="brand-rule"><span></span><i>·</i><span></span></div>
+
+      <p class="brand-flavor">Six banners. One field. One sun.</p>
+
+      <div class="home-actions">
+        <div class="card-action" id="action-create">
+          <div class="card-action-title">Raise a Banner</div>
+          <div class="card-action-sub">Open a new battlefield. Share the code.</div>
+        </div>
+        <div class="card-action" id="action-join">
+          <div class="card-action-title">Answer the Horn</div>
+          <div class="card-action-sub">Join with a code from a friend.</div>
+        </div>
+      </div>
+
+      <p class="conn-status" id="conn-status">Connecting to the field…</p>
+    </div>
+  </section>
+
+  <!-- ============== CREATE / JOIN MODALS ============== -->
+  <div class="modal" id="modal-create" aria-hidden="true">
+    <div class="modal-card">
+      <h2>Raise a Banner</h2>
+      <label class="form-label">Your Name<input type="text" id="create-name" maxlength="20" placeholder="Enter your name" /></label>
+      <div class="form-label">Choose Your Faction</div>
+      <div class="faction-picker" id="create-pick"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" data-close>Cancel</button>
+        <button class="btn-primary" id="btn-create-confirm">Forge the Field</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-join" aria-hidden="true">
+    <div class="modal-card">
+      <h2>Answer the Horn</h2>
+      <label class="form-label">Your Name<input type="text" id="join-name" maxlength="20" placeholder="Enter your name" /></label>
+      <label class="form-label">Room Code<input type="text" id="join-code" maxlength="5" placeholder="ABCDE" autocomplete="off" autocapitalize="characters" /></label>
+      <div class="form-label">Preferred Faction</div>
+      <div class="faction-picker" id="join-pick"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" data-close>Cancel</button>
+        <button class="btn-primary" id="btn-join-confirm">Join Battle</button>
+      </div>
+      <div class="form-error" id="join-error"></div>
+    </div>
+  </div>
+
+  <!-- ============== LOBBY ============== -->
+  <section id="screen-lobby" class="screen">
+    <div class="lobby-bg"></div>
+    <div class="lobby-content">
+      <div class="lobby-code-block">
+        <div class="lobby-code-label">Room Code</div>
+        <div class="lobby-code" id="lobby-code">—</div>
+        <button class="btn-ghost btn-tiny" id="btn-copy-code">Copy Link</button>
+      </div>
+
+      <div class="vs-block">
+        <div class="vs-side" id="vs-p0">
+          <div class="vs-name">—</div>
+          <div class="vs-faction">—</div>
+          <div class="vs-banner"></div>
+          <div class="vs-ready">Awaiting</div>
+        </div>
+        <div class="vs-mid">VS</div>
+        <div class="vs-side" id="vs-p1">
+          <div class="vs-name">—</div>
+          <div class="vs-faction">—</div>
+          <div class="vs-banner"></div>
+          <div class="vs-ready">Awaiting</div>
+        </div>
+      </div>
+
+      <div class="lobby-faction-grid" id="lobby-faction-grid"></div>
+
+      <button class="btn-primary btn-big" id="btn-ready">Ready</button>
+
+      <div class="chat" id="lobby-chat"></div>
+      <input class="chat-input" id="chat-input" placeholder="Send a message…" maxlength="200" />
+    </div>
+  </section>
+
+  <!-- ============== GAME ============== -->
+  <section id="screen-game" class="screen">
+    <header class="game-hud">
+      <div class="hud-side hud-you">
+        <div class="hud-faction" id="hud-you-faction">—</div>
+        <div class="hud-name" id="hud-you-name">—</div>
+        <div class="morale-row">
+          <div class="morale-bar"><div class="morale-fill" id="hud-you-morale"></div></div>
+        </div>
+      </div>
+      <div class="hud-mid">
+        <div class="hud-turn-label">Turn</div>
+        <div class="hud-turn-num" id="hud-turn">1</div>
+        <div class="hud-phase" id="hud-phase">Plan your moves</div>
+      </div>
+      <div class="hud-side hud-foe">
+        <div class="hud-faction" id="hud-foe-faction">—</div>
+        <div class="hud-name" id="hud-foe-name">—</div>
+        <div class="morale-row">
+          <div class="morale-bar"><div class="morale-fill" id="hud-foe-morale"></div></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="battle-stage">
+      <canvas id="stage" width="1600" height="700"></canvas>
+      <div class="grid-overlay" id="grid-overlay"></div>
+      <div class="floating-ui" id="floating-ui"></div>
+    </main>
+
+    <aside class="bottom-panel">
+      <div class="panel-left">
+        <div class="unit-card empty" id="unit-card">
+          <div class="empty-msg">Tap one of your warriors</div>
+        </div>
+      </div>
+      <div class="panel-mid">
+        <div class="action-grid" id="action-grid">
+          <button class="act" data-action="move">MOVE</button>
+          <button class="act" data-action="attack">ATTACK</button>
+          <button class="act" data-action="archery">ARCHERY</button>
+          <button class="act" data-action="charge">CHARGE</button>
+          <button class="act" data-action="hold">HOLD</button>
+          <button class="act" data-action="cancel">CANCEL</button>
+        </div>
+      </div>
+      <div class="panel-right">
+        <button class="btn-ready-big" id="btn-turn-ready">Lock In Orders</button>
+        <div class="log-mini" id="log-mini"></div>
+      </div>
+    </aside>
+
+    <!-- Combat input overlay (shown during resolve phase per unit) -->
+    <div class="combat-overlay" id="combat-overlay" aria-hidden="true">
+      <div class="combat-overlay-inner">
+        <div class="combat-prompt" id="combat-prompt">Strike!</div>
+        <div class="combat-rhythm">
+          <div class="rhythm-track"><div class="rhythm-zone"></div><div class="rhythm-marker" id="rhythm-marker"></div></div>
+        </div>
+        <div class="combat-hint">Press <kbd>Space</kbd> or <span class="touch-only">tap</span> when the marker enters the gold</div>
+      </div>
+    </div>
+
+    <!-- End overlay -->
+    <div class="modal" id="modal-end" aria-hidden="true">
+      <div class="modal-card end-card">
+        <h2 id="end-title">Victory</h2>
+        <p id="end-flavor"></p>
+        <button class="btn-primary" id="btn-end-home">Return Home</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/factions.js"></script>
+<script src="/js/render.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
